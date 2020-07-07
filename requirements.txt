@@ -1,0 +1,4 @@
+ops
+git+https://github.com:omnivector-solutions/slurm-ops-manager.git@bdx_dev
+git+https://github.com:omnivector-solutions/interface-slurm-cluster.git@bdx_dev
+
