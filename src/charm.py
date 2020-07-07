@@ -112,19 +112,16 @@ class SlurmClusterRequiresRelation(Object):
 
 class SlurmdCharm(CharmBase):
 
-    state = StoredState()
-
     def __init__(self, *args):
         super().__init__(*args)
 
-        self.config = self.model.config
-
         self.slurm_ops_manager = SlurmOpsManager(self, 'slurmd')
-        self.slurm_cluster = SlurmClusterRequiresRelation(self, "slurm-cluster")
-        
-        self.framework.observe(self.on.install, self._on_install)
-        self.framework.observe(self.on.start, self._on_start)
 
+        self.slurm_cluster = SlurmClusterRequiresRelation(self, "slurm-cluster")
+
+        self.config = self.model.config
+   
+        self.framework.observe(self.on.install, self._on_install)
         self.framework.observe(self.on.start, self._on_start)
 
 
@@ -141,7 +138,6 @@ class SlurmdCharm(CharmBase):
                 self.unit.status = WaitingStatus("Waiting on slurm install to complete...")
             event.defer()
             return 
-    
 
 
 if __name__ == "__main__":
