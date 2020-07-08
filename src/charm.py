@@ -3,9 +3,6 @@ from ops.charm import CharmBase
 
 from ops.main import main
 
-
-import logging
-#!/usr/bin/env python3
 from ops.model import (
     ActiveStatus,
     BlockedStatus,
