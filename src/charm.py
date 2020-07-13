@@ -99,10 +99,21 @@ class SlurmdProvidesRelation(Object):
 
     def _on_relation_changed(self, event):
         logger.debug("################ LOGGING RELATION CHANGED ####################")
+
+        # Check that the app exists in the event
+        if not event.relation.data.get(event.app):
+            event.defer()
+            return
+
         slurm_config = event.relation.data[event.app].get('slurm_config')
+
+        # Check that slurm_config exists in the relation data for the application
         if not slurm_config:
             event.defer()
             return
+
+        # If all goes well, set the slurm_config to the state var
+        # set config_available to true, and emit the config_available event.
         self._state.slurm_config = slurm_config
         self._state.config_available = True
         self.on.config_available.emit()
