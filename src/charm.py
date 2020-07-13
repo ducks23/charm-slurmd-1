@@ -1,4 +1,5 @@
 #! /usr/bin/env python3
+import json
 import logging
 
 
@@ -98,6 +99,9 @@ class SlurmdProvidesRelation(Object):
     def _on_relation_changed(self, event):
         logger.debug("################ LOGGING RELATION CHANGED ####################")
         slurm_config = event.relation.data[event.app].get('slurm_config')
+        if not slurm_config:
+            event.defer()
+            return
         self._state.slurm_config = slurm_config
         self._state.config_available = True
         self.on.config_available.emit()
@@ -138,11 +142,18 @@ class SlurmdCharm(CharmBase):
         self.unit.status = ActiveStatus("Slurm Installed")
 
     def _on_config_available(self, event):
+
         if (self.slurm_ops_manager.slurm_installed and self.slurmd.config_available):
-            slurm_conifg = self.slurmd.get_slurm_conifg()
-            self.slurm_ops_manager.render_config_and_restart.emit(slurm_conifg)
+
+            try:
+                slurm_conifg = json.loads(self.slurmd.get_slurm_config())
+            except json.JSONDecodeError as e:
+                logger.debug(e)
+
             logger.debug(slurm_config)
+            self.slurm_ops_manager.render_config_and_restart(slurm_conifg)
             self.unit.status = ActiveStatus("Slurm config available")
+
         else:
             self.unit.status = BlockedStatus("Blocked need relation to slurmctld.")
             event.defer()
