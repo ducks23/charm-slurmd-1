@@ -46,7 +46,8 @@ class SlurmdProvidesRelation(Object):
         self.charm = charm
         self._relation_name = relation_name
 
-        self._state.set_default(slurm_config=dict())
+        self._state.set_default(slurm_config=str())
+        self._state.set_default(config_available=False)
 
         self.framework.observe(
             self.charm.on[self._relation_name].relation_created,
@@ -96,11 +97,10 @@ class SlurmdProvidesRelation(Object):
 
     def _on_relation_changed(self, event):
         logger.debug("################ LOGGING RELATION CHANGED ####################")
-
-        #slurm_config = event.relation.data[event.app].get('slurm_config')
-        #if slurm_config:
-        #    self._state.slurm_config = json.loads(slurm_config)
-        #    self.on.config_available.emit()
+        slurm_config = event.relation.data[event.app].get('slurm_config')
+        self._state.slurm_config = slurm_config
+        self._state.config_available = True
+        self.on.config_available.emit()
     
     def _on_relation_departed(self, event):
         logger.debug("################ LOGGING RELATION DEPARTED ####################")
@@ -108,8 +108,12 @@ class SlurmdProvidesRelation(Object):
     def _on_relation_broken(self, event):
         logger.debug("################ LOGGING RELATION BROKEN ####################")
 
-    def get_config(self):
+    def get_slurm_config(self):
         return self._state.slurm_config
+
+    @property
+    def config_available(self):
+        return self._state.config_available
 
 
 class SlurmdCharm(CharmBase):
@@ -124,7 +128,7 @@ class SlurmdCharm(CharmBase):
         self.config = self.model.config
    
         self.framework.observe(self.on.install, self._on_install)
-        self.framework.observe(self.on.start, self._on_start)
+        self.framework.observe(self.on.start, self._on_config_available)
 
         self.framework.observe(self.slurmd.on.config_available, self._on_config_available)
 
@@ -133,17 +137,14 @@ class SlurmdCharm(CharmBase):
         self.slurm_ops_manager.prepare_system_for_slurm()
         self.unit.status = ActiveStatus("Slurm Installed")
 
-    def _on_start(self, event):
-        pass
-
     def _on_config_available(self, event):
-        if self.slurm_ops_manager.slurm_installed:
-            slurm_config = self.slurmd.get_config()
-            #self.charm.slurm_ops_manager.render_config_and_restart(slurm_config)
+        if (self.slurm_ops_manager.slurm_installed and self.slurmd.config_available):
+            slurm_conifg = self.slurmd.get_slurm_conifg()
+            self.slurm_ops_manager.render_config_and_restart.emit(slurm_conifg)
             logger.debug(slurm_config)
             self.unit.status = ActiveStatus("Slurm config available")
         else:
-            self.unit.status = BlockedStatus("Blocked slurm not installed yet")
+            self.unit.status = BlockedStatus("Blocked need relation to slurmctld.")
             event.defer()
 
 
