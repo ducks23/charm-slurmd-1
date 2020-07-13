@@ -12,6 +12,12 @@ series:
     - focal
 
 
-requires:
-  slurm-cluster:
-    interface: slurm-cluster
+provides:
+  slurmd:
+    interface: slurmd
+
+resources:
+  slurm:
+    type: file
+    filename: slurm.tar.gz
+    description: slurm tarbal
