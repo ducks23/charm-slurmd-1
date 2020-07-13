@@ -15,7 +15,9 @@ series:
 provides:
   slurmd:
     interface: slurmd
-
+requires:
+  ctld-to-d:
+    interface: slurmctld
 resources:
   slurm:
     type: file

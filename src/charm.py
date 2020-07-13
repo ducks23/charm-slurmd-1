@@ -2,6 +2,7 @@
 import json
 import logging
 
+from slurmctld import SlurmctldRequirer
 
 from ops.charm import CharmBase
 
@@ -126,6 +127,7 @@ class SlurmdCharm(CharmBase):
         super().__init__(*args)
 
         self.slurm_ops_manager = SlurmOpsManager(self, 'slurmd')
+        self.slurmctld = SlurmctldRequirer(self, "ctld-to-d")
 
         self.slurmd = SlurmdProvidesRelation(self, "slurmd")
 
@@ -133,13 +135,16 @@ class SlurmdCharm(CharmBase):
    
         self.framework.observe(self.on.install, self._on_install)
         self.framework.observe(self.on.start, self._on_config_available)
-
         self.framework.observe(self.slurmd.on.config_available, self._on_config_available)
-
+        self.framework.observe(self.slurmctld.on.munge_available, self._on_munge_available)
 
     def _on_install(self, event):
         self.slurm_ops_manager.prepare_system_for_slurm()
         self.unit.status = ActiveStatus("Slurm Installed")
+
+    def _on_munge_available(self, event):
+        self.slurm_ops_manager.write_munge_key(event.munge.munge)
+        self.unit.status = ActiveStatus("munge key written")
 
     def _on_config_available(self, event):
 
