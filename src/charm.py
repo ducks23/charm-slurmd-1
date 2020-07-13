@@ -97,10 +97,10 @@ class SlurmdProvidesRelation(Object):
     def _on_relation_changed(self, event):
         logger.debug("################ LOGGING RELATION CHANGED ####################")
 
-        slurm_config = event.relation.data[event.app].get('slurm_config')
-        if slurm_config:
-            self._state.slurm_config = json.loads(slurm_config)
-            self.on.config_available.emit()
+        #slurm_config = event.relation.data[event.app].get('slurm_config')
+        #if slurm_config:
+        #    self._state.slurm_config = json.loads(slurm_config)
+        #    self.on.config_available.emit()
     
     def _on_relation_departed(self, event):
         logger.debug("################ LOGGING RELATION DEPARTED ####################")
@@ -145,7 +145,7 @@ class SlurmdCharm(CharmBase):
         else:
             self.unit.status = BlockedStatus("Blocked slurm not installed yet")
             event.defer()
-            return
+
 
 if __name__ == "__main__":
     main(SlurmdCharm)
