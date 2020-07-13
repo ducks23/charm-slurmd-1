@@ -146,12 +146,14 @@ class SlurmdCharm(CharmBase):
         if (self.slurm_ops_manager.slurm_installed and self.slurmd.config_available):
 
             try:
-                slurm_conifg = json.loads(self.slurmd.get_slurm_config())
+                slurm_config = json.loads(self.slurmd.get_slurm_config())
             except json.JSONDecodeError as e:
+                self.unit.status = BlockedStatus("Error decoding JSON, please debug.")
                 logger.debug(e)
+                return
 
             logger.debug(slurm_config)
-            self.slurm_ops_manager.render_config_and_restart(slurm_conifg)
+            self.slurm_ops_manager.render_config_and_restart(slurm_config)
             self.unit.status = ActiveStatus("Slurm config available")
 
         else:
