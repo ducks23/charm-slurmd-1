@@ -1,7 +1,7 @@
 name: slurmd
-summary: Describe your charm here
+summary: Slurmd compute node of The Slurm Workload Scheduler
 maintainers:
-    - Jesse <jesse@omnivector.solutions>
+    - Omnivector Solutions <Admin@omnivector.solutions>
 description: |
     A nice long description of what the product does and any
     high level information about how the charm provides the product,
