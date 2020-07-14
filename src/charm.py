@@ -12,123 +12,10 @@ from ops.model import (
     BlockedStatus,
 )
 
-from ops.framework import (
-    EventBase,
-    EventSource,
-    Object,
-    ObjectEvents,
-    StoredState,
-)
-
-
 from slurm_ops_manager import SlurmOpsManager
 
 
 logger = logging.getLogger()
-
-
-class ConfigAvailableEvent(EventBase):
-    """Slurm Available Event"""
-
-
-class SlurmdProvidesEvents(ObjectEvents):
-    """Slurm Provides Events"""
-    config_available = EventSource(ConfigAvailableEvent)
-
-
-class SlurmdProvidesRelation(Object):
-
-    on = SlurmdProvidesEvents()
-    
-    _state = StoredState()
-
-    def __init__(self, charm, relation_name):
-        super().__init__(charm, relation_name)
-        self.charm = charm
-        self._relation_name = relation_name
-
-        self._state.set_default(slurm_config=str())
-        self._state.set_default(config_available=False)
-
-        self.framework.observe(
-            self.charm.on[self._relation_name].relation_created,
-            self._on_relation_created
-        )
-
-        self.framework.observe(
-            self.charm.on[self._relation_name].relation_joined,
-            self._on_relation_joined
-        )
-
-        self.framework.observe(
-            self.charm.on[self._relation_name].relation_changed,
-            self._on_relation_changed
-        )
-
-        self.framework.observe(
-            self.charm.on[self._relation_name].relation_departed,
-            self._on_relation_departed
-        )
-
-        self.framework.observe(
-            self.charm.on[self._relation_name].relation_broken,
-            self._on_relation_broken
-        )
-
-    def _on_relation_created(self, event):
-        logger.debug("################ LOGGING RELATION CREATED ####################")
-
-        if self.charm.slurm_ops_manager.slurm_installed:
-            event.relation.data[self.model.unit]['hostname'] = \
-                self.charm.slurm_ops_manager.hostname
-            event.relation.data[self.model.unit]['inventory'] = \
-                self.charm.slurm_ops_manager.inventory
-            event.relation.data[self.model.unit]['partition'] = \
-                self.charm.config['partition']
-            event.relation.data[self.model.unit]['default'] = \
-                str(self.charm.config['default']).lower()
-        else:
-            # If we hit this hook/handler before slurm is installed, defer.
-            logger.debug("SLURM NOT INSTALLED DEFERING SETTING RELATION DATA")
-            event.defer()
-            return
-
-    def _on_relation_joined(self, event):
-        logger.debug("################ LOGGING RELATION JOINED ####################")
-
-    def _on_relation_changed(self, event):
-        logger.debug("################ LOGGING RELATION CHANGED ####################")
-
-        # Check that the app exists in the event
-        if not event.relation.data.get(event.app):
-            event.defer()
-            return
-
-        slurm_config = event.relation.data[event.app].get('slurm_config')
-
-        # Check that slurm_config exists in the relation data for the application
-        if not slurm_config:
-            event.defer()
-            return
-
-        # If all goes well, set the slurm_config to the state var
-        # set config_available to true, and emit the config_available event.
-        self._state.slurm_config = slurm_config
-        self._state.config_available = True
-        self.on.config_available.emit()
-    
-    def _on_relation_departed(self, event):
-        logger.debug("################ LOGGING RELATION DEPARTED ####################")
-
-    def _on_relation_broken(self, event):
-        logger.debug("################ LOGGING RELATION BROKEN ####################")
-
-    def get_slurm_config(self):
-        return self._state.slurm_config
-
-    @property
-    def config_available(self):
-        return self._state.config_available
 
 
 class SlurmdCharm(CharmBase):
@@ -138,7 +25,7 @@ class SlurmdCharm(CharmBase):
 
         self.slurm_ops_manager = SlurmOpsManager(self, 'slurmd')
 
-        self.slurmd = SlurmdProvidesRelation(self, "slurmd")
+        self.slurmd = SlurmdProvides(self, "slurmd")
 
         self.config = self.model.config
    
