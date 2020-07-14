@@ -165,7 +165,7 @@ class SlurmdCharm(CharmBase):
 
             logger.debug(slurm_config)
             self.slurm_ops_manager.render_config_and_restart(slurm_config)
-            self.unit.status = ActiveStatus("Slurm config available")
+            self.unit.status = ActiveStatus("Slurmd Available")
 
         else:
             self.unit.status = BlockedStatus("Blocked need relation to slurmctld.")
