@@ -14,6 +14,7 @@ from ops.model import (
 
 from slurm_ops_manager import SlurmOpsManager
 
+from interface_slurmd import SlurmdProvides
 
 logger = logging.getLogger()
 
