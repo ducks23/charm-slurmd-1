@@ -21,8 +21,11 @@ juju relate slurmd slurmctld
 
 Interfaces
 ----------
-- https://github.com/omnivector-solutions/slurm-ops-manager
 - https://github.com/omnivector-solutions/interface-slurmd
+
+Components
+----------
+- https://github.com/omnivector-solutions/slurm-ops-manager
 
 Contact
 -------
