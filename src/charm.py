@@ -17,15 +17,10 @@ logger = logging.getLogger()
 
 
 class SlurmdCharm(CharmBase):
-    """representing the comtpute node portion of Slurm Workload Manager."""
+    """Operator charm responsible for coordinating lifecycle operations for slurmctld."""
 
     def __init__(self, *args):
-        """Initialize charm and configure states and events to observe.
-
-        Component: SlurmOpsManager class that installs the slurm binary.
-        Interface: SlurmdProvides which is responsible for communicating
-        with slurmctld.
-        """
+        """Initialize charm and configure states and events to observe."""
         super().__init__(*args)
         self.slurm_ops_manager = SlurmOpsManager(self, 'slurmd')
         self.slurmd = SlurmdProvides(self, "slurmd")
