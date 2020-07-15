@@ -17,7 +17,7 @@ logger = logging.getLogger()
 
 
 class SlurmdCharm(CharmBase):
-    """Operator charm responsible for coordinating lifecycle operations for slurmctld."""
+    """Operator charm responsible for coordinating lifecycle operations for slurmd."""
 
     def __init__(self, *args):
         """Initialize charm and configure states and events to observe."""

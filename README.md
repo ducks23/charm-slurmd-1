@@ -12,12 +12,18 @@ Requirements
 
 Quickstart
 ----------
-
 ```bash
-charmcraft build
-juju deploy ./slurmd.charm --resource slurm=/path/to/slurm/binary/
-juju relate slurmd slurmctld
+juju deploy slurmd
 ```
+
+## Development
+```bash
+git clone git@github.com:omnivector-solutions/charm-slurmd && cd charm-slurmd
+charmcraft build
+juju deploy ./slurmd.charm --resource slurm=/path/to/slurm.tar.gz
+```
+
+
 
 Interfaces
 ----------
